@@ -6,53 +6,49 @@ download.file(fileurl,destfile="coursera.zip")
 #Unzip the file
 unzip(zipfile="coursera.zip")
 
+#Read activity and feature files
+activitylabels <- read.table(file.path("UCI HAR Dataset","activity_labels.txt"),col.names=c("number","activity")）
+features <- read.table(file.path("UCI HAR Dataset","features.txt")，col.names=c("num","function"))
+
 #Read the test files
-xtest=read.table(file.path("UCI HAR Dataset", "test" , "X_test.txt" ),header=FALSE)
-ytest=read.table(file.path("UCI HAR Dataset", "test" , "Y_test.txt" ),header = FALSE)
-subjecttest=read.table(file.path("UCI HAR Dataset","tast","subject_test.txt"),header=FALSE)
+Xtest=read.table(file.path("UCI HAR Dataset", "test" , "X_test.txt" ),col.names=features$functions)
+Ytest=read.table(file.path("UCI HAR Dataset", "test" , "Y_test.txt" ),col.names="number")
+Subjecttest=read.table(file.path("UCI HAR Dataset","tast","subject_test.txt"),col.names="subject")
 
 #Read the train files
-xtrain <- read.table(file.path("UCI HAR Dataset","train","X_train.txt"),header=FALSE)
-ytrain <- read.table(file.path("UCI HAR Dataset","train","y_train.txt"),header=FALSE)
-subjecttrain <- read.table("UCI HAR Dataset","train","subject_train.txt"),header=FALSE)
-
-#Read activity and feature files
-activitylabels <- read.table(file.path("UCI HAR Dataset","activity_labels.txt") )
-features <- read.table(file.path("UCI HAR Datase","features.txt")
+Xtrain <- read.table(file.path("UCI HAR Dataset","train","X_train.txt"),col.names=features$functions)
+Ytrain <- read.table(file.path("UCI HAR Dataset","train","y_train.txt"),col.names="number")
+subjecttrain <- read.table("UCI HAR Dataset","train","subject_train.txt"),col.names="subject")
 
 #1.Merges the training and the test sets to create one data set.
-#Bind the data of subjects,labels and features of test and train sets by cols
-test=cbind(subjecttest,ytest,xtest)
-train=cbind(subjecttrain,ytrain,xtrain)
-#Combine train and test sets
-Dataset=rbind(test,train)
+#Bind the data of subjects,labels and features of test and train sets
+X=rbind(Xtrain,Xtest)
+Y=rbind(Ytrain,Ytest)
+Subject=rbind(subjecttrain,subjecttest)
+Dataset=cbind(Subject,Y,X)
 
 #2.Extracts only the measurements on the mean and standard deviation for each measurement.
-#subsetting mean and std cols
-DataNames= c("subject","activity",as.character(features$V2) )
-meanstd= grep("subject|activity|[Mm]ean|std", DataNames, value = FALSE)
-Newdataset=Dataset[,meanstd]
+#subsetting "subject","number","mean" and "std"cols
+Extractdataset=Dataset %>% select(subject,number,contains("mean"),contains("std"))
 
 #3.Uses descriptive activity names to name the activities in the data set
-names(activitylabels)=c("activitynumber", "activityname")
-Newdataset$activitynumber=activitylabels[activitynumber,2]
+#Use the correponding name,which is the 2nd col of activitylabels to subsitute the col of numbers in Extractdataset 
+Extractdataset$number=activitylabels[Extractdataset$number,2]
 
 #4.Appropriately labels the data set with descriptive variable names.
-names(Newdataset)[2]="activity"
-names(Newdataset)<-gsub("Acc", "Accelerometer", names(Newdataset))
-names(Newdataset)<-gsub("Gyro", "Gyroscope", names(Newdataset))
-names(Newdataset)<-gsub("BodyBody", "Body", names(Newdataset))
-names(Newdataset)<-gsub("Mag", "Magnitude", names(Newdataset))
-names(Newdataset)<-gsub("^t", "Time", names(Newdataset))
-names(Newdataset)<-gsub("^f", "Frequency", names(Newdataset))
-names(Newdataset)<-gsub("tBody", "TimeBody", names(Newdataset))
-names(Newdataset)<-gsub("-mean()", "Mean", names(Newdataset), ignore.case = TRUE)
-names(Newdataset)<-gsub("-std()", "STD", names(Newdataset), ignore.case = TRUE)
-names(Newdataset)<-gsub("-freq()", "Frequency", names(Newdataset), ignore.case = TRUE)
-names(Newdataset)<-gsub("angle", "Angle", names(Newdataset))
-names(Newdataset)<-gsub("gravity", "Gravity", names(Newdataset))
-names(TidyData)<-gsub("tBody", "TimeBody", names(TidyData))
+> names(Extractdataset)[2]="activity"
+> names(Extractdataset)=gsub("Acc","Accelerometer",names(Extractdataset))
+> names(Extractdataset)=gsub("Gyro", "Gyroscope", names(Extractdataset))
+> names(Extractdataset)=gsub("BodyBody", "Body", names(Extractdataset))
+> names(Extractdataset)=gsub("Mag", "Magnitude", names(Extractdataset))
+> names(Extractdataset)=gsub("^t", "Time", names(Extractdataset))
+> names(Extractdataset)=gsub("^f", "Frequency", names(Extractdataset))
+> names(Extractdataset)=gsub("tBody", "TimeBody", names(Extractdataset))
+> names(Extractdataset)=gsub("-mean()", "Mean", names(Extractdataset), ignore.case = TRUE)
+> names(Extractdataset)=gsub("-std()", "STD", names(Extractdataset),ignore.case = TRUE)
+> names(Extractdataset)=gsub("-freq()", "Frequency", names(Extractdataset), ignore.case = TRUE)
+> names(Extractdataset)=gsub(""angle", "Angle", names(Extractdataset))
 
 #5.From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
-tidydataset=Newdataset %>% group_by(activity,subject) %>% summarize_all(funs(mean))
-write.table(tidydataset,file="tidydataset.tet",row.name=FALSE)
+>TIDYDATA=aggregate(.~subject+activity,data=Extractdataset,FUN=mean)
+>write.table(TIDYDATA,"averaged.txt",row.names=FALSE)
