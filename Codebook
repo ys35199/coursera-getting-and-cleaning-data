@@ -1,32 +1,29 @@
-#download the data to the desktop and name it "coursera.zip"
-#Assign each data in the URI HAR Dataset to variables
-features <- features.txt 
-activitylabels <- activity_labels.txt 
-subjecttest <- test/subject_test.txt 
-xtest <- test/X_test.txt
-ytest <- test/y_test.txt 
-subjecttrain <- test/subject_train.txt
-xtrain <- test/X_train.txt
-ytrain <- test/y_train.txt 
+#Field names              Description
+features             contains the data based on the accelerometer and gyroscope 3-axial raw signals tAcc-XYZ and tGyro-XYZ.
+activitylabels       contains the activity name or labels and corresponding numbers
+Subjecttest          contains different subjects performed in the test set
+Xtest                contains data of various tests based on different functions 
+ytest                contains labels of different activities in the test set
+subjecttrain         contains different subjects performed in the subject set
+xtrain               contains train data based on different functions
+ytrain               contains labels of different activities in the train set 
 
 #Merges the training and the test sets to create one data set
-test is created by using cbind() to bind subjecttest,ytest and xtest.
-train is created by using cbind() to bind subjecttrain,ytrain and xtrain.
-Dataset is created by binding test and trains by rows.
-
+X                    a combined data frame of xtrain and xtest
+Y                    a combined data frame of ytrain and ytest
+Subject              a combined data frame of subjecttrain and subjecttest
+Dataset              a combined data frame of X,Y and Dataset
 
 #Extracts only the measurements on the mean and standard deviation for each measurement
-DataNames select cols of "subject","activity",and the second variable of features, which is converted to characters
-meanstd is created by using grep to subset cols of DataNames containing suject,activity,mean or std.
-Newdataset is created by indexing all the rows with meanstd cols of Dataset
+Extractdataset       a data frame containing subject,number,mean and std cols
 
 #Uses descriptive activity names to name the activities in the data set
-The two cols of activitylabels dataset is renamed into "activitynumber" and "activityname".
-The activitynumber col is replaced by the 2nd col of activitiylabels.
+Extractdataset$number the col renamed to the 2nd col of activitylabels, which is activity name
+
 
 #Appropriately labels the data set with descriptive variable names
-activitynumber column in the Newdataset renamed into activities
-Using gsub() to substitute all the abbreviations into corresponding full names.
+names(Extractdataset)substitute all the abbreviations into corresponding full names.
 
 #From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject
-tidydataset is created by using pipeline operater and grouped by activity and subject,sumarizing tidyData with the means of each variable for each activity and each subject.
+TIDYDATA            a second, independent tidy data set with the average of each variable for each activity and each subject
+"averaged.txt"      the final file of TIDYDATA is exported as a text format to the desktop
